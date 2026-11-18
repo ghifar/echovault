@@ -17,17 +17,7 @@ VALID_CATEGORIES = (
     "known_fix", "constraint", "project_state", "active_work",
 )
 
-SAVE_DESCRIPTION = """Save a memory for future sessions. You MUST call this before ending any session where you made changes, fixed bugs, made decisions, or learned something. This is not optional — failing to save means the next session starts from zero.
-
-Save when you:
-- Made an architectural or design decision (chose X over Y)
-- Fixed a bug (include root cause and solution)
-- Discovered a non-obvious pattern or gotcha
-- Learned something about the codebase not obvious from code
-- Set up infrastructure, tooling, or configuration
-- The user corrected you or clarified a requirement
-
-Do NOT save: trivial changes (typos, formatting), info obvious from reading the code, or duplicates of existing memories. Write for a future agent with zero context."""
+SAVE_DESCRIPTION = """Save a concise, verified handoff or non-obvious decision. Include the exact ticket or report ID in the title or summary. Skip duplicates, trivial work and facts available in source. Never save credentials or unapproved sensitive data."""
 SAVE_DESCRIPTION += """
 
 When filling `details`, prefer this structure:
@@ -37,9 +27,9 @@ When filling `details`, prefer this structure:
 - Tradeoffs
 - Follow-up"""
 
-SEARCH_DESCRIPTION = """Search memories using keyword and semantic search. Use this when the task-aware memory_context pack is insufficient or when investigating a narrower topic. Explicit search remains available even when automatic context is disabled."""
+SEARCH_DESCRIPTION = """For a specific remembered fact, search once with project and limit=2. If an exact ID misses, check matching lines in that project's vault notes. Widen only if evidence is missing or contradictory."""
 
-CONTEXT_DESCRIPTION = """Get a task-aware living-memory context pack for the current project. You MUST call this before feature development, planning, debugging, or architecture work. Pass the current user request verbatim or as a faithful task summary in `query`, and pass your runtime identity in `agent` (for example `claude-code` or `codex`) so policy overrides work. The response includes summaries, structured playbooks, constraints, provenance, and token estimates directly to avoid extra round trips. If policy reports disabled, continue without automatic context; explicit memory_search and memory_save still work."""
+CONTEXT_DESCRIPTION = """Resume prior project work with one scoped lookup: summarize the current user request in `query`, pass `agent` (e.g. claude-code), limit=2 and token_budget=400. Skip when a known source answers the question. Stop once you have enough evidence; verify current status at its source."""
 
 
 def handle_memory_save(
@@ -200,7 +190,6 @@ def handle_memory_context(
         "total": total,
         "showing": len(memories),
         "memories": memories,
-        "message": "Use memory_search for specific topics. IMPORTANT: You MUST call memory_save before this session ends if you make any changes, decisions, or discoveries.",
     })
 
 
